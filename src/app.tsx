@@ -1,25 +1,37 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import { lazy } from 'react';
-// import Swap from './components/swap';
+import { lazy, useEffect } from 'react';
+
+import { RootState, useSelector } from './store';
 
 const Layout = lazy(() => import('./layout'));
 const Dashboard = lazy(() => import('./components/dashboard'));
 const Swap = lazy(() => import('./components/swap'));
 const _404 = lazy(() => import('./components/_404'));
 
-export default function App() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route element={<Layout />}>
-                    <Route index element={<Dashboard />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/swap" element={<Swap />} />
+import Modals from './components/modals';
 
-                    <Route path="*" element={<_404 />} />
-                </Route>
-            </Routes>
-        </BrowserRouter>
+export default function App() {
+    const isDark = useSelector((state: RootState) => state.mode.isDark);
+
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', isDark);
+    }, [isDark]);
+
+    return (
+        <>
+            <BrowserRouter>
+                <Routes>
+                    <Route element={<Layout />}>
+                        <Route index element={<Dashboard />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/swap" element={<Swap />} />
+
+                        <Route path="*" element={<_404 />} />
+                    </Route>
+                </Routes>
+                <Modals />
+            </BrowserRouter>
+        </>
     );
 }
 

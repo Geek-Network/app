@@ -34,19 +34,6 @@ const useCurrenciesFromURL = (): {
 
         const nativeSymbol = NATIVE[chainId].symbol;
 
-        const from = searchParams.get('from');
-        const to = searchParams.get('to');
-
-        // console.log(from, to);
-
-        // if (from && to) {
-        //     searchParams.set('from', to);
-        //     searchParams.set('to', from);
-        // } else {
-        //     searchParams.set('from', currencyB?.isNative ? nativeSymbol : currencyB?.wrapped.address);
-        //     searchParams.set('to', currencyA?.isNative ? nativeSymbol : currencyA?.wrapped.address);
-        // }
-
         searchParams.set('from', currencyB?.isNative ? nativeSymbol : currencyB?.wrapped.address);
         searchParams.set('to', currencyA?.isNative ? nativeSymbol : currencyA?.wrapped.address);
 

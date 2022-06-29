@@ -2,12 +2,18 @@ import { Dialog, Transition } from '@headlessui/react';
 import { ChainId, Token } from '@sushiswap/core-sdk';
 import { Fragment } from 'react';
 
-import { MdClose, MdImage } from 'react-icons/md';
+import { MdAutorenew, MdClose, MdImage } from 'react-icons/md';
+import { Field } from '../constants';
+import useSwap from '../hooks/useSwap';
+import { useDispatch } from '../store';
+import { hide } from '../store/modal';
 
-import { dispatch } from 'use-bus';
+export default function SelectToken({ field }: { field: Field }) {
+    const dispatch = useDispatch();
 
-export default function SelectToken({ isBase }: { isBase: boolean }) {
-    const close = () => dispatch('hide');
+    const close = () => dispatch(hide());
+
+    const { onCurrencySelection } = useSwap();
 
     const tokens = [
         new Token(ChainId.RINKEBY, '0xA7dE33d5af924FEa80016faC97aF3162a3979a08', 18, 'GEEK'),
@@ -16,9 +22,12 @@ export default function SelectToken({ isBase }: { isBase: boolean }) {
     ];
 
     const onSelect = (token: Token) => {
-        dispatch({ type: 'token', data: token, isBase });
+        // dispatch({ type: 'token', data: token, isBase });
+        onCurrencySelection(field, token);
         close();
     };
+
+    const loading = false;
 
     return (
         <Transition.Root show={true} as={Fragment}>
@@ -47,22 +56,28 @@ export default function SelectToken({ isBase }: { isBase: boolean }) {
                         </div>
 
                         <div className="space-y-4 px-6 py-4">
-                            {/* <div className="mt-1 flex rounded-md shadow-sm">
+                            <div className="relative flex rounded-md shadow-sm">
                                 <input
                                     type="text"
-                                    readOnly
-                                    value={account?.address}
-                                    className="block w-full rounded-none rounded-l-md border-gray-300 p-2.5 text-sm text-gray-900 transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
+                                    className="block w-full rounded-md border-gray-300 p-2.5 text-sm text-gray-900 transition focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
                                 />
-                                
 
-                                <button
+                                {/* <button
                                     type="button"
-                                    onClick={() => copy(account?.address)}
                                     className="relative -ml-px inline-flex items-center space-x-2 rounded-r-md bg-indigo-500 px-4 py-2 text-sm font-medium text-gray-100 transition hover:bg-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                    {isCopied ? <MdCheck className="h-5 w-5"></MdCheck> : <MdContentCopy className="h-5 w-5"></MdContentCopy>}
-                                </button>
-                            </div> */}
+                                    {loading ? <MdClose className="h-5 w-5" /> : <MdAutorenew className="h-5 w-5" />}
+                                </button> */}
+
+                                <div className="absolute inset-y-0 right-1 flex items-center">
+                                    <button
+                                        type="button"
+                                        className="-ml-py inline-flex items-center rounded p-2 text-sm font-medium transition hover:bg-indigo-500 hover:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        {loading ? <MdClose className="h-5 w-5" /> : <MdAutorenew className="h-5 w-5" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div></div>
 
                             {tokens.map((t) => (
                                 <div key={t.address} onClick={() => onSelect(t)} className="group flex cursor-pointer items-center rounded p-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800">

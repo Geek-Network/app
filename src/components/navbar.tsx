@@ -3,64 +3,43 @@ import { Link } from 'react-router-dom';
 import { Menu, Transition } from '@headlessui/react';
 import { MdMoreVert, MdOutlineAutoStories, MdExpandMore, MdAutorenew, MdDarkMode, MdLightMode, MdCheck } from 'react-icons/md';
 
-import { useAccount, useConnect, useBalance, useNetwork } from 'wagmi';
+import { useAccount, useConnect, useBalance, useNetwork, useSwitchNetwork } from 'wagmi';
 
-import useStore from '../helper/store';
 import { shorted } from '../helper';
 
-import { dispatch } from 'use-bus';
 import { toKb } from '@morioh/helper';
+import { RootState, useDispatch, useSelector } from '../store';
+import { toggleMode } from '../store/dark';
+import { show } from '../store/modal';
 
 export default function Navbar() {
-    const { data: account } = useAccount();
+    const dispatch = useDispatch();
 
-    const { data: balance, isLoading } = useBalance({ addressOrName: account?.address, watch: true });
+    const { address, isConnected, connector } = useAccount();
 
-    const { connect, connectors, isConnecting, pendingConnector } = useConnect();
+    const { data: balance, isLoading } = useBalance({ addressOrName: address, watch: true });
 
-    const { activeChain, chains, error, pendingChainId, switchNetwork } = useNetwork();
+    const { connect, connectors } = useConnect();
 
-    const [isDarkMode, setDarkMode] = useStore<boolean>('dark', false);
+    const { chain } = useNetwork();
 
-    const info = () => dispatch({ type: 'show', data: ['account'] });
+    const { chains, switchNetwork } = useSwitchNetwork();
 
-    // const switchToNetwork = async (key: number) => {
-    //     console.debug(`Switching to chain ${key}`, SUPPORTED_NETWORKS[key]);
+    const info = () => dispatch(show(['account']));
 
-    //     const params = SUPPORTED_NETWORKS[key];
-    //     try {
-    //         await library?.send('wallet_switchEthereumChain', [{ chainId: `0x${key.toString(16)}` }, account]);
-    //     } catch (switchError) {
-    //         // This error code indicates that the chain has not been added to MetaMask.
-    //         // @ts-ignore TYPE NEEDS FIXING
-    //         if (switchError.code === 4902) {
-    //             try {
-    //                 await library?.send('wallet_addEthereumChain', [params, account]);
-    //             } catch (addError) {
-    //                 // handle "add" error
-    //                 console.error(`Add chain error ${addError}`);
-    //             }
-    //         }
-    //         console.error(`Switch chain error ${switchError}`);
-    //         // handle other "switch" errors
-    //     }
-    // };
-
-    document.documentElement.classList.toggle('dark', isDarkMode);
-
-    //console.log(chains);
+    const isDark = useSelector((state: RootState) => state.mode.isDark);
 
     return (
         <div className="fixed top-0 z-20 w-full bg-white shadow transition dark:bg-gray-800 dark:text-gray-100">
-            <div className="w-full px-2 sm:px-4">
+            <div className="w-full px-2 pl-0 sm:px-4">
                 <div className="relative flex h-15 items-center justify-between space-x-4">
                     <div className="flex items-center">
-                        <div className="flex-shrink-0 space-x-4">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-indigo-500">
                             <Link to="/">
                                 <span className="sr-only">Workflow</span>
                                 {/* <img className="h-8 w-auto sm:h-10" src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg" /> */}
 
-                                <svg className="h-10 w-auto text-indigo-500" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 695.92 790">
+                                <svg className="h-8 w-auto text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 695.92 790">
                                     <path
                                         d="M251.05,287.24c-8.81-29.83,3.07-63.93,34.24-81,9.76-5.36,20.94-7.66,32.08-7.66h0a69.12,69.12,0,1,1-32.2,130.29,70.05,70.05,0,0,1-9-5.63c-90.68,56.36-169.38,121-224,182.39v69.93a43.93,43.93,0,0,0,22,38l304,175.54a44,44,0,0,0,43.92,0l42.64-24.62c-58.84-56.34-118.92-131.45-171.38-216.24a69,69,0,1,1,36.06-25c53.93,87.51,115.6,164,174.67,218.52l222-128.2a43.93,43.93,0,0,0,22-38V352.11C694.2,405.65,625.7,459.56,549.25,507.27a69,69,0,1,1-25.14-36c90.68-56.37,169.38-121,224-182.39V224.46a43.9,43.9,0,0,0-22-38L422.1,10.88a43.93,43.93,0,0,0-43.91,0l-39.88,23c59.38,56.51,120.1,132.24,173.05,217.83a69.1,69.1,0,1,1-41.74,34,68.07,68.07,0,0,1,5.67-9C420.85,188.38,358.5,111.3,298.9,56.67L74.15,186.43a43.9,43.9,0,0,0-22,38V442.4C106.11,388.87,174.6,335,251.05,287.24Z"
                                         transform="translate(-52.19 -5)"
@@ -89,8 +68,8 @@ export default function Navbar() {
                                 Staking
                             </Link>
 
-                            <Link to="/lauchpad" className="rounded px-4 py-2 font-normal transition hover:bg-gray-100 dark:hover:bg-opacity-20">
-                                Lauchpad
+                            <Link to="/startup" className="rounded px-4 py-2 font-normal transition hover:bg-gray-100 dark:hover:bg-opacity-20">
+                                Startup
                             </Link>
                             <Link to="/airdrop" className="rounded px-4 py-2 font-normal transition hover:bg-gray-100 dark:hover:bg-opacity-20">
                                 Airdrop
@@ -103,9 +82,6 @@ export default function Navbar() {
                                 Merchant
                             </Link>
 
-                            {/* <Link to="/staking" className="rounded px-4 py-2 font-normal transition hover:bg-gray-300 hover:text-white">
-                                Locked
-                            </Link> */}
                             {/* 
                             <a href="" className="rounded px-4 py-2 font-normal transition hover:bg-gray-700 hover:text-white">
                                 Earn
@@ -117,12 +93,12 @@ export default function Navbar() {
                     </div>
 
                     <div className="ml-3 flex items-center space-x-4">
-                        {account ? (
+                        {isConnected ? (
                             <>
                                 <Menu as="div" className="relative inline-block text-left">
                                     <div>
                                         <Menu.Button className="inline-flex w-full items-center justify-center rounded border border-gray-300 py-2 px-4 text-sm transition hover:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-opacity-30 dark:hover:border-opacity-100">
-                                            {activeChain && <span>{activeChain.name}</span>}
+                                            {chain && <span>{chain.name}</span>}
                                             <MdExpandMore className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
                                         </Menu.Button>
                                     </div>
@@ -138,10 +114,10 @@ export default function Navbar() {
                                         <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white text-gray-700 shadow focus:outline-none dark:divide-gray-600 dark:bg-gray-700 dark:text-gray-200">
                                             <div className="p-1">
                                                 {chains.map((x) => (
-                                                    <Menu.Item disabled={!switchNetwork || x.id === activeChain?.id} key={x.id} onClick={() => switchNetwork?.(x.id)}>
+                                                    <Menu.Item disabled={!switchNetwork || x.id === chain?.id} key={x.id} onClick={() => switchNetwork?.(x.id)}>
                                                         <a href="#" className="group flex cursor-pointer justify-between rounded p-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800">
                                                             <span>{x.name}</span>
-                                                            {x.id === activeChain?.id && <MdCheck className="h-5 w-5 text-indigo-500"></MdCheck>}
+                                                            {x.id === chain?.id && <MdCheck className="h-5 w-5 text-indigo-500"></MdCheck>}
                                                         </a>
                                                     </Menu.Item>
                                                 ))}
@@ -163,7 +139,7 @@ export default function Navbar() {
                                             type="button"
                                             onClick={info}
                                             className="relative -ml-px inline-flex items-center rounded-r border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium hover:border-indigo-500 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-opacity-30 dark:bg-gray-700 dark:hover:border-opacity-100">
-                                            {shorted(account?.address)}
+                                            {shorted(address)}
                                         </button>
                                     </span>
                                 </div>
@@ -217,7 +193,25 @@ export default function Navbar() {
                                             </div>
 
                                             <div className="p-1">
-                                                {isDarkMode ? (
+                                                {isDark ? (
+                                                    <Menu.Item>
+                                                        <a onClick={() => dispatch(toggleMode())} className="group flex cursor-pointer rounded p-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800">
+                                                            <MdDarkMode className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"></MdDarkMode>
+                                                            <span>Appearance: Dark</span>
+                                                        </a>
+                                                    </Menu.Item>
+                                                ) : (
+                                                    <Menu.Item>
+                                                        <a onClick={() => dispatch(toggleMode())} className="group flex cursor-pointer rounded p-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800">
+                                                            <MdLightMode className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"></MdLightMode>
+                                                            <span>Appearance: Light</span>
+                                                        </a>
+                                                    </Menu.Item>
+                                                )}
+                                            </div>
+
+                                            {/* <div className="p-1">
+                                                {isDark ? (
                                                     <Menu.Item>
                                                         <a onClick={() => setDarkMode(false)} className="group flex cursor-pointer rounded p-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800">
                                                             <MdDarkMode className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"></MdDarkMode>
@@ -232,7 +226,7 @@ export default function Navbar() {
                                                         </a>
                                                     </Menu.Item>
                                                 )}
-                                            </div>
+                                            </div> */}
 
                                             <div className="p-1">
                                                 <Menu.Item>
@@ -272,7 +266,7 @@ export default function Navbar() {
                                 </Menu>
                             </>
                         ) : (
-                            <button onClick={() => connect(connectors[0])} className="ml-3 flex-shrink-0 rounded-md border border-indigo-500 px-4 py-2 transition hover:bg-indigo-500 hover:text-white">
+                            <button onClick={() => connect({ connector: connectors[0] })} className="ml-3 flex-shrink-0 rounded-md border border-indigo-500 px-4 py-2 transition hover:bg-indigo-500 hover:text-white">
                                 Connect
                             </button>
                         )}

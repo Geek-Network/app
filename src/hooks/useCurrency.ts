@@ -3,12 +3,12 @@ import { useMemo } from 'react';
 import { useNetwork, useToken } from 'wagmi';
 
 export function useCurrency(currencyId: string | undefined): Currency | null | undefined {
-    const { activeChain } = useNetwork();
+    const { chain } = useNetwork();
 
     // Since this is used throughout the app, cant change this to NATIVE[chainId]?.symbol
     const isETH = currencyId?.toUpperCase() === 'ETH';
 
-    const chainId = activeChain?.id as ChainId;
+    const chainId = chain?.id as ChainId;
 
     const isDual = [ChainId.CELO].includes(chainId);
 

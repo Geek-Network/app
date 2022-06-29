@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-import { RootState, useSelector } from '../store';
+import useBus from 'use-bus';
 
 import Account from './account';
 import SelectToken from './select-token';
@@ -11,7 +11,11 @@ const Components = {
 };
 
 export default function Modals() {
-    const data = useSelector((state: RootState) => state.modal.data);
+    const [data, setData] = useState(null);
+
+    useBus('show', ({ data }) => setData(data), []);
+
+    useBus('hide', () => setData(null), []);
 
     if (data && Components[data[0]]) {
         // const Comopnent = Components[data[0]];

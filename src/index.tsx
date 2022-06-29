@@ -3,15 +3,19 @@ import './index.css';
 
 import { createRoot } from 'react-dom/client';
 
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+
 import { WagmiConfig } from 'wagmi';
 
-import client from './helper/connect';
+import client from './helper/web3';
 
 // import reportWebVitals from './reportWebVitals';
 
-import App from './app';
+import { persistor, store } from './store';
+import { Suspense } from 'react';
 
-import Modals from './components/modals';
+import App from './app';
 
 // const container = document.getElementById('root');
 
@@ -20,8 +24,13 @@ const root = createRoot(document.getElementById('root')!);
 
 root.render(
     <WagmiConfig client={client}>
-        <App />
-        <Modals></Modals>
+        <Provider store={store}>
+            <Suspense>
+                <PersistGate loading={null} persistor={persistor}>
+                    <App />                    
+                </PersistGate>
+            </Suspense>
+        </Provider>
     </WagmiConfig>
 );
 

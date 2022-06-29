@@ -1,15 +1,14 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 
-const Navbar = lazy(() => import('./components/navbar'));
+// const Navbar = lazy(() => import('./components/navbar'));
+import Navbar from './components/navbar';
 // const Sidebar = lazy(() => import('./components/sidebar'));
 
 export default function Layout() {
     return (
         <>
-            <Suspense fallback>
-                <Navbar />
-            </Suspense>
+            <Navbar />
 
             <div className="flex flex-col">
                 <main className="flex-1">

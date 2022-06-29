@@ -9,7 +9,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
+// const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
 
 const ENV = require('dotenv-webpack');
 
@@ -111,7 +111,7 @@ module.exports = (env, argv) => {
                 // safe: true
             }),
 
-            new NodePolyfillPlugin(),
+            // new NodePolyfillPlugin(),
 
             new MiniCssExtractPlugin({
                 filename: filename + '.css',
