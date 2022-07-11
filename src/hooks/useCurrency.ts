@@ -18,19 +18,20 @@ export function useCurrency(currencyId: string | undefined): Currency | null | u
         currencyId = WNATIVE_ADDRESS[chainId];
     }
 
-    const { data, isLoading } = useToken({ address: useNative ? undefined : currencyId });
+    const { data } = useToken({ address: useNative ? undefined : currencyId });
 
     // console.log(data);
 
-    const { native, wnative } = useMemo(
+    const { native, wnative, token } = useMemo(
         () => ({
             native: chainId && chainId in NATIVE ? NATIVE[chainId] : undefined,
             wnative: chainId && chainId in WNATIVE ? WNATIVE[chainId] : undefined,
+            token: data ? new Token(chainId, data.address, data.decimals, data.symbol) : undefined,
         }),
-        [chainId]
+        [chainId, data]
     );
 
     if (wnative?.address?.toLowerCase() === currencyId?.toLowerCase()) return wnative;
 
-    return useNative ? native : !isLoading && data ? new Token(chainId, data.address, data.decimals, data.symbol) : undefined;
+    return useNative ? native : token;
 }

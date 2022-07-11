@@ -42,3 +42,11 @@ export const BETTER_TRADE_LESS_HOPS_THRESHOLD = new Percent(JSBI.BigInt(50), JSB
 export const ZERO_PERCENT = new Percent('0');
 
 export const ONE_HUNDRED_PERCENT = new Percent('1');
+
+export const GLOBAL_DEFAULT_SLIPPAGE_PERCENT = new Percent(50, 10_000) // .5%
+export const GLOBAL_DEFAULT_SLIPPAGE_STR = GLOBAL_DEFAULT_SLIPPAGE_PERCENT.toFixed(2)
+
+
+export const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
+
+export const USER_REJECTED_TX = 4001;

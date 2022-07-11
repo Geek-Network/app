@@ -1,28 +1,26 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAction, createSlice } from '@reduxjs/toolkit';
 export interface ModalState {
-    //show: boolean;
-    data: [] | null;
+    data: (string | any)[] | null;
 }
 
 const initialState: ModalState = {
     data: null,
 };
 
-export const ModalSlice = createSlice({
+export default createSlice({
     name: 'modal',
     initialState,
-    reducers: {
-        show: (state, { payload }) => {
-            state.data = payload;
-        },
-
-        hide: (state) => {
-            state.data = null;
-        },
+    reducers: {},
+    extraReducers(builder) {
+        builder
+            .addCase(show, (state, { payload }) => {
+                state.data = payload;
+            })
+            .addCase(hide, (state) => {
+                state.data = null;
+            });
     },
 });
 
-// Action creators are generated for each case reducer function
-export const { show, hide } = ModalSlice.actions;
-
-export const ModalReducer = ModalSlice.reducer;
+export const show = createAction<ModalState['data']>('modal/show');
+export const hide = createAction('modal/hide');

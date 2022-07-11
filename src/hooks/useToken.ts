@@ -1,7 +1,10 @@
 import { Token } from '@sushiswap/core-sdk';
+import { isAddress } from 'ethers/lib/utils';
 
 import { useMemo } from 'react';
 import { TokenAddressMap } from '../helper/token';
+import { useCombinedActiveList } from './useList';
+
 
 // reduce token map into standard address <-> Token mapping, optionally include user added tokens
 function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean): { [address: string]: Token } {
@@ -38,8 +41,7 @@ function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean):
 }
 
 export function useAllTokens(): { [address: string]: Token } {
-    const allTokens = useCombinedActiveList();
-    // console.log("useAllTokens", allTokens);
+    const allTokens = useCombinedActiveList();    
     return useTokensFromMap(allTokens, true);
 }
 

@@ -1,4 +1,4 @@
-import { Currency, Token } from '@sushiswap/core-sdk';
+import { ChainId, Currency, Token } from '@sushiswap/core-sdk';
 import { useMemo } from 'react';
 
 import flatMap from 'lodash/flatMap';
@@ -8,23 +8,38 @@ import { useNetwork } from 'wagmi';
 export function useAllCurrencyCombinations(currencyA?: Currency, currencyB?: Currency): [Token, Token][] {
     // const { chainId } = useActiveWeb3React()
 
-    const { activeChain } = useNetwork();
+    const { chain } = useNetwork();    
 
-    const chainId = activeChain?.id;
-
-    const [tokenA, tokenB] = chainId ? [currencyA?.wrapped, currencyB?.wrapped] : [undefined, undefined];
+    const [tokenA, tokenB] = chain ? [currencyA?.wrapped, currencyB?.wrapped] : [undefined, undefined];
 
     const bases: Token[] = useMemo(() => {
-        if (!chainId) return [];
+        if (!chain) return [];
 
+        const chainId = chain.id;
         const common = BASES_TO_CHECK_TRADES_AGAINST[chainId] ?? [];
         const additionalA = tokenA ? ADDITIONAL_BASES[chainId]?.[tokenA.address] ?? [] : [];
         const additionalB = tokenB ? ADDITIONAL_BASES[chainId]?.[tokenB.address] ?? [] : [];
 
         return [...common, ...additionalA, ...additionalB];
-    }, [chainId, tokenA, tokenB]);
+    }, [chain, tokenA, tokenB]);
 
     const basePairs: [Token, Token][] = useMemo(() => flatMap(bases, (base): [Token, Token][] => bases.map((otherBase) => [base, otherBase])), [bases]);
+
+    // console.log('bases', chain?.id, tokenA, tokenB, bases);
+    
+    // return useMemo(
+    //     () => [
+    //         // the direct pair
+    //         [tokenA, tokenB],
+    //         // token A against all bases
+    //         ...bases.map((base): [Token, Token] => [tokenA, base]),
+    //         // token B against all bases
+    //         ...bases.map((base): [Token, Token] => [tokenB, base]),
+    //         // each base against all bases
+    //         ...basePairs,
+    //     ],
+    //     [chain, tokenA, tokenB, bases, basePairs]
+    // );
 
     return useMemo(
         () =>
@@ -42,7 +57,9 @@ export function useAllCurrencyCombinations(currencyA?: Currency, currencyB?: Cur
                       .filter((tokens): tokens is [Token, Token] => Boolean(tokens[0] && tokens[1]))
                       .filter(([t0, t1]) => t0.address !== t1.address)
                       .filter(([tokenA, tokenB]) => {
-                          if (!chainId) return true;
+                          if (!chain) return true;
+                          const chainId = chain.id;
+
                           const customBases = CUSTOM_BASES[chainId];
 
                           const customBasesA: Token[] | undefined = customBases?.[tokenA.address];
@@ -56,6 +73,6 @@ export function useAllCurrencyCombinations(currencyA?: Currency, currencyB?: Cur
                           return true;
                       })
                 : [],
-        [tokenA, tokenB, bases, basePairs, chainId]
+        [tokenA, tokenB, bases, basePairs, chain]
     );
 }

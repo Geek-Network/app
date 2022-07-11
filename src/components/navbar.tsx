@@ -9,7 +9,7 @@ import { shorted } from '../helper';
 
 import { toKb } from '@morioh/helper';
 import { RootState, useDispatch, useSelector } from '../store';
-import { toggleMode } from '../store/dark';
+import { toggleMode } from '../store/user';
 import { show } from '../store/modal';
 
 export default function Navbar() {
@@ -27,19 +27,38 @@ export default function Navbar() {
 
     const info = () => dispatch(show(['account']));
 
-    const isDark = useSelector((state: RootState) => state.mode.isDark);
+    const isDark = useSelector((state: RootState) => state.user.isDark);
 
     return (
         <div className="fixed top-0 z-20 w-full bg-white shadow transition dark:bg-gray-800 dark:text-gray-100">
             <div className="w-full px-2 pl-0 sm:px-4">
                 <div className="relative flex h-15 items-center justify-between space-x-4">
                     <div className="flex items-center">
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-indigo-500">
+                        {/* <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-indigo-500">
                             <Link to="/">
-                                <span className="sr-only">Workflow</span>
-                                {/* <img className="h-8 w-auto sm:h-10" src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg" /> */}
-
+                                <span className="sr-only">Morioh</span>
                                 <svg className="h-8 w-auto text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 695.92 790">
+                                    <path
+                                        d="M251.05,287.24c-8.81-29.83,3.07-63.93,34.24-81,9.76-5.36,20.94-7.66,32.08-7.66h0a69.12,69.12,0,1,1-32.2,130.29,70.05,70.05,0,0,1-9-5.63c-90.68,56.36-169.38,121-224,182.39v69.93a43.93,43.93,0,0,0,22,38l304,175.54a44,44,0,0,0,43.92,0l42.64-24.62c-58.84-56.34-118.92-131.45-171.38-216.24a69,69,0,1,1,36.06-25c53.93,87.51,115.6,164,174.67,218.52l222-128.2a43.93,43.93,0,0,0,22-38V352.11C694.2,405.65,625.7,459.56,549.25,507.27a69,69,0,1,1-25.14-36c90.68-56.37,169.38-121,224-182.39V224.46a43.9,43.9,0,0,0-22-38L422.1,10.88a43.93,43.93,0,0,0-43.91,0l-39.88,23c59.38,56.51,120.1,132.24,173.05,217.83a69.1,69.1,0,1,1-41.74,34,68.07,68.07,0,0,1,5.67-9C420.85,188.38,358.5,111.3,298.9,56.67L74.15,186.43a43.9,43.9,0,0,0-22,38V442.4C106.11,388.87,174.6,335,251.05,287.24Z"
+                                        transform="translate(-52.19 -5)"
+                                        style={{ fillRule: 'evenodd' }}
+                                    />
+                                    <path
+                                        d="M519.74,338.7a23,23,0,0,0,10.9,2.73,23.34,23.34,0,0,0,11-43.95,23,23,0,0,0-10.91-2.73,23.33,23.33,0,0,0-11,43.95Z"
+                                        transform="translate(-52.19 -5)"
+                                        style={{ fillRule: 'evenodd' }}
+                                    />
+                                    <path d="M274.08,458.58A23.33,23.33,0,1,0,285,461.3,23.31,23.31,0,0,0,274.08,458.58Z" transform="translate(-52.19 -5)" style={{ fillRule: 'evenodd' }} />
+                                    <path d="M493.85,506.19A23,23,0,0,0,483,503.5a23.37,23.37,0,1,0,10.84,2.69Z" transform="translate(-52.19 -5)" style={{ fillRule: 'evenodd' }} />
+                                    <path d="M317.29,291a23.34,23.34,0,1,0-10.83-2.68A23.06,23.06,0,0,0,317.29,291Z" transform="translate(-52.19 -5)" style={{ fillRule: 'evenodd' }} />
+                                </svg>
+                            </Link>
+                        </div> */}
+
+                        <div className="flex flex-shrink-0 items-center justify-center">
+                            <Link to="/">
+                                <span className="sr-only">Morioh</span>
+                                <svg className="h-10 w-auto text-blue-600" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 695.92 790">
                                     <path
                                         d="M251.05,287.24c-8.81-29.83,3.07-63.93,34.24-81,9.76-5.36,20.94-7.66,32.08-7.66h0a69.12,69.12,0,1,1-32.2,130.29,70.05,70.05,0,0,1-9-5.63c-90.68,56.36-169.38,121-224,182.39v69.93a43.93,43.93,0,0,0,22,38l304,175.54a44,44,0,0,0,43.92,0l42.64-24.62c-58.84-56.34-118.92-131.45-171.38-216.24a69,69,0,1,1,36.06-25c53.93,87.51,115.6,164,174.67,218.52l222-128.2a43.93,43.93,0,0,0,22-38V352.11C694.2,405.65,625.7,459.56,549.25,507.27a69,69,0,1,1-25.14-36c90.68-56.37,169.38-121,224-182.39V224.46a43.9,43.9,0,0,0-22-38L422.1,10.88a43.93,43.93,0,0,0-43.91,0l-39.88,23c59.38,56.51,120.1,132.24,173.05,217.83a69.1,69.1,0,1,1-41.74,34,68.07,68.07,0,0,1,5.67-9C420.85,188.38,358.5,111.3,298.9,56.67L74.15,186.43a43.9,43.9,0,0,0-22,38V442.4C106.11,388.87,174.6,335,251.05,287.24Z"
                                         transform="translate(-52.19 -5)"
@@ -80,6 +99,9 @@ export default function Navbar() {
                             </Link>
                             <Link to="/payment" className="rounded px-4 py-2 font-normal transition hover:bg-gray-100 dark:hover:bg-opacity-20">
                                 Merchant
+                            </Link>
+                            <Link to="/works" className="rounded px-4 py-2 font-normal transition hover:bg-gray-100 dark:hover:bg-opacity-20">
+                                Works
                             </Link>
 
                             {/* 

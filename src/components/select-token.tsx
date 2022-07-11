@@ -4,9 +4,9 @@ import { Fragment } from 'react';
 
 import { MdAutorenew, MdClose, MdImage } from 'react-icons/md';
 import { Field } from '../constants';
-import useSwap from '../hooks/useSwap';
 import { useDispatch } from '../store';
 import { hide } from '../store/modal';
+import useSwap from '../store/swap/hooks';
 
 export default function SelectToken({ field }: { field: Field }) {
     const dispatch = useDispatch();
@@ -16,9 +16,23 @@ export default function SelectToken({ field }: { field: Field }) {
     const { onCurrencySelection } = useSwap();
 
     const tokens = [
-        new Token(ChainId.RINKEBY, '0xA7dE33d5af924FEa80016faC97aF3162a3979a08', 18, 'GEEK'),
-        new Token(ChainId.RINKEBY, '0xf41f2dee55f8acdb0eea3404a1b55a982c276ac8', 18, 'USDT'),
-        new Token(ChainId.RINKEBY, '0x5f71368d05f3f04cc3A739f88779A41D635c9C45', 18, 'MKT'),
+
+        
+
+        new Token(ChainId.ROPSTEN, '0xF41f2dEE55F8AcdB0EEA3404A1b55a982c276Ac8', 18, 'USDT', 'USDT'),
+
+        new Token(ChainId.ROPSTEN, '0x1ad25Ed9868529FdeE22A1E6C171DF63d458a946', 18, 'MKT', 'MyToken'),
+
+
+        new Token(ChainId.RINKEBY, '0xA7dE33d5af924FEa80016faC97aF3162a3979a08', 18, 'GEEK', 'GEEK'),
+        new Token(ChainId.RINKEBY, '0xf41f2dee55f8acdb0eea3404a1b55a982c276ac8', 18, 'USDT', 'USDT'),
+        new Token(ChainId.RINKEBY, '0x5f71368d05f3f04cc3A739f88779A41D635c9C45', 18, 'MKT', 'MyToken'),
+
+        new Token(ChainId.ETHEREUM, '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2', 18, 'sushi'),
+        new Token(ChainId.ETHEREUM, '0xdac17f958d2ee523a2206206994597c13d831ec7', 6, 'usdt'),
+        new Token(ChainId.ETHEREUM, '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', 6, 'usdc'),
+        new Token(ChainId.ETHEREUM, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', 18, 'weth'),
+        new Token(ChainId.ETHEREUM, '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', 8, 'wbtc'),
     ];
 
     const onSelect = (token: Token) => {

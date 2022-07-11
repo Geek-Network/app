@@ -8,21 +8,19 @@ import { Field } from '../../constants';
 import { useDispatch } from '../../store';
 import { show } from '../../store/modal';
 
-export default memo(function CurrencyInput({ field, currency, value, onChange }: { field: Field; currency: Currency | undefined; value: number; onChange: (value: number) => void }) {
+export default function CurrencyInput({ field, currency, value, onChange }: { field: Field; currency: Currency | undefined; value: string | number | undefined; onChange: (value: number) => void }) {
     const dispatch = useDispatch();
 
     const { address } = useAccount();
 
-    const { data: balance } = useBalance({
+    const { data: balance, isLoading } = useBalance({
         addressOrName: address,
         token: currency?.isToken ? currency.address : undefined,
     });
 
-    // const selectToken = () => dispatch( { type: 'show', data: ['selectToken', { isBase }] });
-
     const selectToken = () => dispatch(show(['selectToken', { field }]));
 
-    const onInputChange = (e: any) => debounce(onChange(e.target.value.replace(/,/g, '.')), 500);
+    const onInputChange = (e: any) => debounce(onChange(e.target.value.replace(/,/g, '.')), 800);
 
     const onPercent = (p: number) => onChange(balance && balance.value.gt(0) ? (parseFloat(balance.formatted) * p) / 100 : 0);
 
@@ -70,4 +68,4 @@ export default memo(function CurrencyInput({ field, currency, value, onChange }:
             )}
         </div>
     );
-});
+}

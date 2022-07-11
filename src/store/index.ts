@@ -5,14 +5,18 @@ import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 // reducers
-import { ModeReducer } from './dark';
-import { ModalReducer } from './modal';
-import { SwapReducer } from './swap';
+
+import Modal from './modal';
+import Swap from './swap';
+import List from './list';
+// import Mode from './dark';
+import User from './user';
 
 const reducers = combineReducers({
-    mode: ModeReducer,
-    modal: ModalReducer,
-    swap: SwapReducer,
+    modal: Modal.reducer,
+    swap: Swap.reducer,
+    lists: List.reducer,
+    user: User.reducer,
 });
 
 const persistConfig = {
@@ -20,7 +24,7 @@ const persistConfig = {
     version: 1,
     storage,
     timeout: 2000,
-    whitelist: ['mode'],
+    whitelist: ['user'],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

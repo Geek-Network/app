@@ -1,5 +1,6 @@
-import { Currency, Percent, Trade, TradeType } from "@sushiswap/core-sdk";
-import { ONE_HUNDRED_PERCENT, ZERO_PERCENT } from "../constants";
+import { Currency, Percent, Trade, TradeType } from '@sushiswap/core-sdk';
+import { BigNumber } from 'ethers';
+import { ONE_HUNDRED_PERCENT, ZERO_PERCENT } from '../constants';
 
 // returns whether tradeB is better than tradeA by at least a threshold percentage amount
 export function isTradeBetter(tradeA: Trade<Currency, Currency, TradeType> | undefined | null, tradeB: Trade<Currency, Currency, TradeType> | undefined | null, minimumDelta: Percent = ZERO_PERCENT): boolean | undefined {
@@ -16,4 +17,9 @@ export function isTradeBetter(tradeA: Trade<Currency, Currency, TradeType> | und
     } else {
         return tradeA.executionPrice.asFraction.multiply(minimumDelta.add(ONE_HUNDRED_PERCENT)).lessThan(tradeB.executionPrice);
     }
+}
+
+// add 20%
+export function calculateGasMargin(value: BigNumber): BigNumber {
+    return value.mul(BigNumber.from(10000 + 2000)).div(BigNumber.from(10000));
 }

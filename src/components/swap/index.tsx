@@ -1,30 +1,35 @@
 import { classNames } from '@morioh/helper';
-import { useCallback, useState } from 'react';
-import { MdHistoryToggleOff, MdShare, MdSwapVert, MdTune } from 'react-icons/md';
+import { useCallback, useMemo, useState } from 'react';
+import { MdHistoryToggleOff, MdOutlineMultipleStop, MdShare, MdSwapVert, MdTune } from 'react-icons/md';
 import { Field } from '../../constants';
-import useSwap from '../../hooks/useSwap';
 
 import { RootState, useSelector } from '../../store';
 import CurrencyInput from './input';
 
+import { computeRealizedLPFeePercent } from '../../helper';
+import useSwap, { useSlippageTolerance } from '../../store/swap/hooks';
+import { useContract, useProvider } from 'wagmi';
+import { useSwapCallback } from '../../hooks/useSwapCallback';
+
 export default function Swap() {
-    const { currencies } = useSelector((state: RootState) => state.swap);
+    // const singleHopOnly = useSelector((state:RootState)=>state.user.singleHopOnly);
+    // const { amount, field } = useSelector((state: RootState) => state.swap);
 
-    const { onChangeRecipient, onSwitchCurrencies, onCurrencySelection, onChangeAmount } = useSwap();
+    const { onSwitchCurrencies, onChangeAmount, trade, currencies, amounts } = useSwap();
 
-    const [a, setA] = useState(0);
-    const [b, setB] = useState(0);
+    // console.log('byUrl', byUrl);
+
+    //console.log('swap', JSON.stringify( trade, null, '\t'));
+
+    // console.log('trade', trade?.inputAmount.toExact(), trade?.outputAmount.toExact(), trade?.priceImpact.toFixed());
 
     const shiff = () => {
         onSwitchCurrencies();
-        setA(b);
-        setB(0);
     };
 
     const onInputChange = useCallback(
         (value: number) => {
             onChangeAmount(Field.INPUT, value);
-            setA(value);
         },
         [onChangeAmount]
     );
@@ -32,12 +37,46 @@ export default function Swap() {
     const onOutputChange = useCallback(
         (value: number) => {
             onChangeAmount(Field.OUTPUT, value);
-            setB(value);
         },
         [onChangeAmount]
     );
 
     // console.log(currencies);
+
+    const priceImpact = useMemo(() => {
+        if (trade) {
+            const realizedLpFeePercent = computeRealizedLPFeePercent(trade);
+            const priceImpact = trade.priceImpact.subtract(realizedLpFeePercent);
+            return priceImpact;
+        }
+        return 0;
+    }, [trade]);
+
+    // const minReceived = minimumAmountOut || trade?.minimumAmountOut(allowedSlippage)
+    const realizedLpFeePercent = trade ? computeRealizedLPFeePercent(trade) : undefined;
+
+    const allowedSlippage = useSlippageTolerance();
+
+    const minReceived = trade?.minimumAmountOut(allowedSlippage);
+
+    const [inverted, setInverted] = useState(false);
+
+    // the callback to execute the swap
+    const { callback: swapCallback, error } = useSwapCallback(trade, allowedSlippage, undefined);
+
+    const handleSwap = useCallback(() => {
+        if (!swapCallback) {
+            return;
+        }
+
+        swapCallback()
+            .then((hash) => {
+                console.log(hash);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, [swapCallback]);
 
     const loading = false;
 
@@ -61,7 +100,7 @@ export default function Swap() {
                             </div>
                         </div>
 
-                        <CurrencyInput field={Field.INPUT} currency={currencies[0]} value={a} onChange={(val) => onInputChange(val)}></CurrencyInput>
+                        <CurrencyInput field={Field.INPUT} currency={currencies[0]} value={amounts[0]} onChange={(val) => onInputChange(val)}></CurrencyInput>
 
                         <div className="flex justify-center">
                             <button type="button" onClick={shiff} className="rounded p-2 transition hover:bg-gray-200 dark:hover:bg-opacity-20">
@@ -69,13 +108,56 @@ export default function Swap() {
                             </button>
                         </div>
 
-                        <CurrencyInput field={Field.OUTPUT} currency={currencies[1]} value={b} onChange={(val) => onOutputChange(val)}></CurrencyInput>
+                        <CurrencyInput field={Field.OUTPUT} currency={currencies[1]} value={amounts[1]} onChange={(val) => onOutputChange(val)}></CurrencyInput>
 
+                        {trade && (
+                            <button type="button" onClick={() => setInverted(!inverted)} className="flex w-full items-center justify-center space-x-2 text-sm">
+                                <span>1 {inverted ? trade.executionPrice.quoteCurrency.symbol : trade.executionPrice.baseCurrency.symbol}</span>
+                                <MdOutlineMultipleStop className="h-4 w-4"></MdOutlineMultipleStop>
+                                <span>
+                                    {inverted ? trade.executionPrice.invert().toSignificant(4) : trade.executionPrice.toSignificant(4)}{' '}
+                                    {inverted ? trade.executionPrice.baseCurrency.symbol : trade.executionPrice.quoteCurrency.symbol}
+                                </span>
+                            </button>
+                        )}
                         <div>
-                            <button type="submit" disabled={loading} className={classNames(loading ? 'animate-pulse' : '', 'btn w-full')}>
-                                Connect to Wallet
+                            <button type="button" onClick={handleSwap} className={classNames(loading ? 'animate-pulse' : '', 'btn w-full')}>
+                                Swap
                             </button>
                         </div>
+
+                        {trade && (
+                            <div className="space-y-2 rounded-md bg-gray-100 p-4 text-xs dark:bg-gray-900">
+                                <div className="flex justify-between">
+                                    <span>Minimum received:</span>
+                                    <span>
+                                        {minReceived?.toSignificant(6)} {minReceived?.currency.symbol}
+                                    </span>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <span>Slippage:</span>
+                                    <span> {allowedSlippage.toFixed(2)}%</span>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <span>Price Impact:</span>
+                                    <span> {priceImpact.toFixed()}%</span>
+                                </div>
+
+                                {realizedLpFeePercent && (
+                                    <div className="flex justify-between">
+                                        <span>Liquidity Provider Fee:</span>
+                                        <span> {realizedLpFeePercent.toFixed(2)}%</span>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between">
+                                    <span>Route:</span>
+                                    <span> {trade.route.path.map((el) => el.symbol).join(' > ')}</span>
+                                </div>
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>

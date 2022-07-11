@@ -10,12 +10,14 @@ const _404 = lazy(() => import('./components/_404'));
 
 import Modals from './components/modals';
 
+// import Updater from './store/list/updater';
+
 export default function App() {
-    const isDark = useSelector((state: RootState) => state.mode.isDark);
+    const isDark = useSelector((state: RootState) => state.user.isDark);
 
     useEffect(() => {
         document.documentElement.classList.toggle('dark', isDark);
-    }, [isDark]);
+    }, [isDark]);    
 
     return (
         <>
@@ -30,6 +32,7 @@ export default function App() {
                     </Route>
                 </Routes>
                 <Modals />
+                {/* <Updater></Updater> */}
             </BrowserRouter>
         </>
     );
